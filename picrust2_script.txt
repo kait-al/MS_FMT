@@ -1,0 +1,53 @@
+
+#From base terminal, activate picrust2 environment in conda
+
+conda activate picrust2
+
+# to deactivate the environment
+#conda deactivate
+
+
+
+#Convert (filtered) dada2 ASV output table to .biom format
+#add first column name as #OTU ID (no tax column)
+biom convert -i SV_table_01filt.txt -o SV_filt01_hdf5.biom --table-type="OTU table" --to-hdf5
+
+# see what the file looks like
+biom head -i SV_filt01_hdf5.biom 
+
+##Constructed from biom file
+#OTU ID	Donor.1.01.01.18	Donor.1.01.20.18	Donor.1.03.28.18	Donor.1.21.01.18	Donor.1.22.01.18
+#SV_1	778.0	741.0	379.0	366.0	572.0
+#SV_2	315.0	171.0	445.0	303.0	403.0
+#SV_3	242.0	443.0	154.0	618.0	765.0
+#SV_4	1143.0	643.0	804.0	184.0	416.0
+#SV_5	571.0	426.0	525.0	112.0	421.0
+
+
+#and get some more info about it 
+
+biom summarize-table -i SV_filt01_hdf5.biom
+
+###
+#Num samples: 117
+#Num observations: 237
+#Total count: 5,944,823
+#Table density (fraction of non-zero values): 0.559
+
+#Counts/sample summary:
+# Min: 3,627.000
+# Max: 179,818.000
+# Median: 50,060.000
+# Mean: 50,810.453
+# Std. dev.: 30,549.603
+# Sample Metadata Categories: None provided
+# Observation Metadata Categories: None provided
+
+#Counts/sample detail:
+#MK.FMT.001.0m: 3,627.000
+#MK.FMT.003.5m: 6,399.000
+#Donor.1.21.01.18: 6,670.000
+#Donor.1.22.01.18: 7,904.000...
+	
+#Run the entire pathway together as 
+picrust2_pipeline.py -s sv_seq.txt -i SV_filt01_hdf5.biom -o output

@@ -1,0 +1,43 @@
+#directly from dada2 output
+
+d<-t(counts_filtered)
+dim(d)
+# 1738  117
+
+# Filter samples, include only those >1000 reads
+i <- (colSums(d[,1:ncol(d)-1]) <=1000)
+d.s <- d[, !i]
+
+dim(d.s)
+#1738  117 #Nice! none removed
+
+# calculate frequency
+d.freq <- apply(d.s, 2, function(x){x/sum(x)})
+
+#Check that all columns sum to 1
+#colSums(d.freq)
+
+# filter SVs
+# Keep SVs with frequency of > 0.01 in any sample
+# Keep the SV as long as the maximum frequency of the SV in any one sample is greater than the cutoff
+d.0 <- d.s[apply(d.freq, 1, max)>0.01,]
+
+#check the dimensions, number of SVs (rows) has been cut way down
+dim(d.0)
+#[1] 237 117
+# 1501 SVs removed
+
+#write filtered table to use downstream
+write.table(d.0, file="SV_table_01filt.txt", sep="\t", quote=F)
+
+#add the taxonomy string to the filtered counts table
+df<-read.table("SV_table_01filt.txt", sep="\t", quote="", check.names=F, header=T, comment.char="")
+df <- data.frame(df)
+
+df2<-read.table("tax_string.txt", sep="\t", quote="", check.names=F, header=T, comment.char="")
+df2 <- data.frame(df2)
+test <- merge(df, df2, by.x="row.names", by.y="SV", all=F)
+rownames(test) <- test$Row.names
+test$Row.names <- NULL
+
+write.table(test, file="SV_table_01filt_tax.txt", sep="\t", quote=F, col.names=NA)
